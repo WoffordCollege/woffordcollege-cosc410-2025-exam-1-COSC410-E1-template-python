@@ -1,0 +1,31 @@
+name: Autograding Tests
+'on':
+- push
+- repository_dispatch
+permissions:
+  checks: write
+  actions: read
+  contents: read
+jobs:
+  run-autograding-tests:
+    runs-on: ubuntu-latest
+    if: github.actor != 'github-classroom[bot]'
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    - name: Get Top of Column
+      id: get-top-of-column
+      uses: classroom-resources/autograding-command-grader@v1
+      with:
+        test-name: Get Top of Column
+        setup-command: pip install -r requirements.txt
+        command: python -m pytest tests/test_connect_four.py::test_get_top_of_column
+          -v
+        timeout: 10
+        max-score: 2
+    - name: Autograding Reporter
+      uses: classroom-resources/autograding-grading-reporter@v1
+      env:
+        GET-TOP-OF-COLUMN_RESULTS: "${{steps.get-top-of-column.outputs.result}}"
+      with:
+        runners: get-top-of-column
